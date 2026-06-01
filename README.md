@@ -2,9 +2,6 @@
 
 > Stop sorting emails manually. This n8n workflow uses GPT-4 to read every incoming email, classify it by department and priority, auto-reply to the sender, and route it to the right team — all in seconds.
 
-**TSAcademy · AI Automation · Phoenix Cohort · Capstone Project**
-
----
 
 ## 💡 The Problem It Solves
 
