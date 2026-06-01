@@ -1,0 +1,1015 @@
+{
+  "name": "Email Classification",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "filters": {
+          "labelIds": [
+            "INBOX"
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -1280,
+        -320
+      ],
+      "id": "bfa770e9-2297-437a-9218-edde0f2401c3",
+      "name": "Gmail Trigger",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "WDmCuVQV5dhBkMuP",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "fa0a5ccc-3ca9-42ba-942f-7c63e71c00ae",
+              "name": "sender",
+              "value": "={{ $json.From }}",
+              "type": "string"
+            },
+            {
+              "id": "0f771dda-8f9c-42ab-99af-e7883f05181a",
+              "name": "subject",
+              "value": "={{ $json.Subject }}",
+              "type": "string"
+            },
+            {
+              "id": "af9131ee-4f73-41dc-afc4-18d9faf398d3",
+              "name": "body",
+              "value": "={{ $json.snippet }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1024,
+        -320
+      ],
+      "id": "6e7cba80-5b4a-41c6-86fd-68d2aa71fe56",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "jsCode": "const raw = $json.output[0].content[0].text;\n\nreturn [\n  {\n    json: JSON.parse(raw)\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -512,
+        -320
+      ],
+      "id": "6464b7b9-b19b-4c47-9981-b24f72610d45",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "sendTo": "pip1234679@gmail.com",
+        "subject": "=[{{$json.department}}] {{$('Edit Fields').item.json.subject}}",
+        "message": "=\n</h<html>\n  <body style=\"margin:0; padding:0; background:#f3f6fb; font-family:Arial, sans-serif;\">\n\n```\n<div style=\"max-width:640px; margin:40px auto; background:#ffffff; border-radius:14px; overflow:hidden; box-shadow:0 10px 30px rgba(0,0,0,0.08);\">\n\n  <!-- Header -->\n  <div style=\"background:linear-gradient(135deg,#1e3a8a,#2563eb,#38bdf8); padding:26px;\">\n    <h2 style=\"color:#ffffff; margin:0; font-size:22px;\">📩 New Sales Inquiry</h2>\n    <p style=\"color:#dbeafe; margin-top:6px; font-size:14px;\">\n     \n    </p>\n  </div>\n\n  <!-- Body -->\n  <div style=\"padding:24px; color:#1e293b;\">\n\n    <p style=\"margin-top:0;\">Hello Team,</p>\n    <p>A new enquiry has been received. Here are the details:</p>\n\n    <!-- Info Card -->\n    <div style=\"background:#f1f5f9; padding:18px; border-radius:10px; margin:20px 0;\">\n\n      <p><strong>📌 Subject:</strong><br>\n      {{ $('Edit Fields').item.json.subject }}</p>\n\n      <p><strong>👤 Name:</strong><br>\n      {{ $('Edit Fields').item.json.sender.split('<')[0].trim() }}</p>\n\n      <p><strong>📧 Email:</strong><br>\n      {{ $('Edit Fields').item.json.sender.match(/<(.+?)>/)[1] }}</p>\n\n      <p><strong>⚡ Priority:</strong>\n        <span style=\"background:#fee2e2; color:#dc2626; padding:4px 10px; border-radius:6px; font-size:12px;\">\n          {{$json.priority}}\n        </span>\n      </p>\n\n      <p><strong>📊 Confidence:</strong>\n        <span style=\"color:#16a34a; font-weight:bold;\">\n          {{$json.confidence}}%\n        </span>\n      </p>\n\n    </div>\n\n    <!-- Message Box -->\n    <div style=\"margin:20px 0;\">\n      <p><strong>💬 Message:</strong></p>\n      <div style=\"background:#ecfeff; border-left:4px solid #06b6d4; padding:14px; border-radius:6px;\">\n        {{ $('Edit Fields').item.json.body }}\n      </div>\n    </div>\n\n    <!-- AI Insight -->\n    <div style=\"margin:20px 0;\">\n      <p><strong>🤖 AI Insight:</strong></p>\n      <div style=\"background:#fef9c3; border-left:4px solid #eab308; padding:14px; border-radius:6px; color:#92400e;\">\n        {{$json.reason}}\n      </div>\n    </div>\n\n    <!-- Button -->\n    <div style=\"margin-top:30px; text-align:center;\">\n      <a href=\"#\" style=\"background:linear-gradient(135deg,#2563eb,#4f46e5); color:#ffffff; padding:12px 22px; border-radius:8px; text-decoration:none; font-size:14px; display:inline-block;\">\n        View & Respond\n      </a>\n    </div>\n\n  </div>\n\n  \n\n\n  </body>\n</html>\n\n",
+        "options": {
+          "appendAttribution": false,
+          "senderName": "={{ $('Gmail Trigger').item.json.From.split('<')[0].trim().split(' ')[0] }}"
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        608,
+        -624
+      ],
+      "id": "24112a8f-9dc0-4919-9caa-1ca2199fc40e",
+      "name": "Sales",
+      "webhookId": "ac1aaf8e-f1d5-4023-b36c-170b06c077d2",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "WDmCuVQV5dhBkMuP",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "pip1234679@gmail.com",
+        "subject": "=[{{ $('email log').item.json.fields.Priority }}]({{ $('email log').item.json.fields.Department }}) {{$('Edit Fields').item.json.subject}}",
+        "message": "=<html>\n<body style=\"margin:0; padding:0; background:#f3f6fb; font-family:Arial, sans-serif;\">\n\n<div style=\"max-width:640px; margin:40px auto; background:#ffffff; border-radius:14px; overflow:hidden; box-shadow:0 10px 30px rgba(0,0,0,0.08);\">\n\n<!-- Header -->\n<div style=\"background:linear-gradient(135deg,#7f1d1d,#dc2626,#f87171); padding:26px;\">\n<h2 style=\"color:#ffffff; margin:0;\">🚨 Customer Support Request</h2>\n<p style=\"color:#fee2e2; margin-top:6px;\">\nA customer needs assistance or reported an issue\n</p>\n</div>\n\n<!-- Body -->\n<div style=\"padding:24px; color:#1e293b;\">\n\n<p>Hello Support Team,</p>\n<p>A new customer message has been received and requires attention:</p>\n\n<!-- Info Box -->\n<div style=\"background:#fef2f2; padding:16px; border-radius:10px; margin:20px 0;\">\n\n<p><strong>📌 Subject:</strong><br>\n{{ $('Edit Fields').item.json.subject }}</p>\n\n<p><strong>👤 Name:</strong><br>\n{{ $('Edit Fields').item.json.sender.split('<')[0].trim() }}</p>\n\n<p><strong>📧 Email:</strong><br> \n{{ $('Edit Fields').item.json.sender.match(/<(.+?)>/)[1] }}</p>\n\n<p><strong>⚡ Priority:</strong>\n<span style=\"background:#dc2626; color:#ffffff; padding:4px 10px; border-radius:6px; font-size:12px;\">\n{{ $('email log').item.json.fields.Priority }}\n\n</span>\n</p>\n\n<p><strong>📊 Confidence:</strong>\n<span style=\"color:#16a34a; font-weight:bold;\">\n{{ $('email log').item.json.fields.Confidence }}%\n</span>\n</p>\n\n</div>\n\n<!-- Message -->\n<div style=\"margin:20px 0;\">\n<p><strong>💬 Customer Message:</strong></p>\n<div style=\"background:#fff1f2; border-left:4px solid #dc2626; padding:14px; border-radius:6px;\">\n{{ $('Edit Fields').item.json.body }}\n</div>\n</div>\n\n<!-- AI Insight -->\n<div style=\"margin:20px 0;\">\n<p><strong>🤖 AI Insight:</strong></p>\n<div style=\"background:#fef3c7; border-left:4px solid #f59e0b; padding:14px; border-radius:6px; color:#92400e;\">\n{{$json.reason}}\n</div>\n</div>\n\n<!-- Button -->\n<div style=\"margin-top:30px; text-align:center;\">\n<a href=\"#\" style=\"background:linear-gradient(135deg,#dc2626,#ef4444); color:#ffffff; padding:12px 22px; border-radius:8px; text-decoration:none; font-size:14px; display:inline-block;\">\nRespond to Customer \n</a>\n</div>\n\n</div>\n\n<!-- Footer -->\n<div style=\"background:#f1f5f9; padding:16px; text-align:center; font-size:12px; color:#64748b;\">\n🚀 Automated Customer Support Notification\n</div>\n\n</div>\n\n</body>\n</html>",
+        "options": {
+          "appendAttribution": false,
+          "senderName": "={{ $('Gmail Trigger').item.json.From.split('<')[0].trim().split(' ')[0] }}"
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1152,
+        -400
+      ],
+      "id": "3f301daf-a62b-4b60-9e9c-0f6868dbdf5d",
+      "name": "Costumer Services",
+      "webhookId": "46b42d78-2f3a-4140-9e84-efa733e851a4",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "WDmCuVQV5dhBkMuP",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "pip1234679@gmail.com",
+        "subject": "=[{{$json.department}}] ({{$json.priority}}) {{$('Edit Fields').item.json.subject}}",
+        "message": "=<div style=\"max-width:640px; margin:40px auto; background:#ffffff; border-radius:14px; overflow:hidden; box-shadow:0 10px 30px rgba(0,0,0,0.08);\">    <!-- Header -->   <div style=\"background:linear-gradient(135deg,#4c1d95,#7c3aed,#c084fc); padding:26px;\">     <h2 style=\"color:#ffffff; margin:0; font-size:22px;\">🧑‍💼 New HR Candidate Submission</h2>     <p style=\"color:#ede9fe; margin-top:6px; font-size:14px;\">       A new applicant or employee-related message has been identified     </p>   </div>    <!-- Body -->   <div style=\"padding:24px; color:#1e293b;\">      <p>Hello HR Team,</p>     <p>A new human resources-related email has been received for your review:</p>      <div style=\"background:#f5f3ff; padding:18px; border-radius:10px; margin:20px 0;\">        <p><strong>📄 Subject:</strong><br>{{ $('Edit Fields').item.json.subject }}</p>        <p><strong>👤 Applicant / Sender:</strong><br>{{ $('Edit Fields').item.json.sender.split('<')[0].trim() }}</p>        <p><strong>📧 Contact:</strong><br>{{ $('Edit Fields').item.json.sender.match(/<(.+?)>/)[1] }}</p>        <p><strong>⭐ Priority:</strong>         <span style=\"background:#ede9fe; color:#6d28d9; padding:4px 10px; border-radius:6px; font-size:12px;\">           {{$json.priority}}         </span>       </p>        <p><strong>📊 Match Confidence:</strong>         <span style=\"color:#7c3aed; font-weight:bold;\">           {{$json.confidence}}%         </span>       </p>      </div>      <div style=\"margin:20px 0;\">       <p><strong>📝 Candidate Message:</strong></p>       <div style=\"background:#faf5ff; border-left:4px solid #a855f7; padding:14px; border-radius:6px;\">         {{ $('Edit Fields').item.json.body }}       </div>     </div>      <div style=\"margin:20px 0;\">       <p><strong>🤖 AI HR Insight:</strong></p>       <div style=\"background:#f3e8ff; border-left:4px solid #7c3aed; padding:14px; border-radius:6px; color:#581c87;\">         {{$json.reason}}       </div>     </div>      <div style=\"margin-top:30px; text-align:center;\">       <a href=\"#\" style=\"background:linear-gradient(135deg,#7c3aed,#a855f7); color:#ffffff; padding:12px 22px; border-radius:8px; text-decoration:none;\">         Review Candidate       </a>     </div>    </div>    <div style=\"background:#f5f3ff; padding:16px; text-align:center; font-size:12px; color:#6b7280;\">     👥 Powered by  HR Routing System   </div>  </div>",
+        "options": {
+          "appendAttribution": false,
+          "senderName": "={{ $('Gmail Trigger').item.json.From.split('<')[0].trim().split(' ')[0] }}"
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        688,
+        -368
+      ],
+      "id": "11b4b02c-fb94-454b-8836-af1e87a7396c",
+      "name": "Hr",
+      "webhookId": "b9c66626-c750-4703-b4c1-db4fe9f80bcb",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "WDmCuVQV5dhBkMuP",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "pip1234679@gmail.com",
+        "subject": "=[{{$json.department}}] ({{$json.priority}}) {{$('Edit Fields').item.json.subject}}",
+        "message": "=<div style=\"max-width:640px; margin:40px auto; background:#ffffff; border-radius:14px; overflow:hidden; box-shadow:0 10px 30px rgba(0,0,0,0.08);\">    <div style=\"background:linear-gradient(135deg,#064e3b,#059669,#34d399); padding:26px;\">     <h2 style=\"color:#ffffff; margin:0; font-size:22px;\">💰 New Finance Request Detected</h2>     <p style=\"color:#d1fae5; margin-top:6px; font-size:14px;\">       A billing, payment, or invoice-related email has been flagged by AI     </p>   </div>    <div style=\"padding:24px; color:#1e293b;\">      <p>Hello Finance Team,</p>     <p>A new financial communication requires your attention:</p>      <div style=\"background:#ecfdf5; padding:18px; border-radius:10px; margin:20px 0;\">        <p><strong>🧾 Subject:</strong><br>{{ $('Edit Fields').item.json.subject }}</p>        <p><strong>🏢 Sender:</strong><br>{{ $('Edit Fields').item.json.sender.split('<')[0].trim() }}</p>        <p><strong>📧 Email:</strong><br>{{ $('Edit Fields').item.json.sender.match(/<(.+?)>/)[1] }}</p>        <p><strong>⚠️ Priority:</strong>         <span style=\"background:#d1fae5; color:#065f46; padding:4px 10px; border-radius:6px;\">           {{$json.priority}}         </span>       </p>        <p><strong>📈 Confidence:</strong>         <span style=\"color:#059669; font-weight:bold;\">           {{$json.confidence}}%         </span>       </p>      </div>      <div style=\"margin:20px 0;\">       <p><strong>💬 Financial Details:</strong></p>       <div style=\"background:#f0fdf4; border-left:4px solid #10b981; padding:14px; border-radius:6px;\">         {{ $('Edit Fields').item.json.body }}       </div>     </div>      <div style=\"margin:20px 0;\">       <p><strong>🤖 AI Finance Insight:</strong></p>       <div style=\"background:#d1fae5; border-left:4px solid #059669; padding:14px; border-radius:6px; color:#065f46;\">         {{$json.reason}}       </div>     </div>      <div style=\"margin-top:30px; text-align:center;\">       <a href=\"#\" style=\"background:linear-gradient(135deg,#059669,#10b981); color:#ffffff; padding:12px 22px; border-radius:8px; text-decoration:none;\">         Process Request       </a>     </div>    </div>    <div style=\"background:#ecfdf5; padding:16px; text-align:center; font-size:12px; color:#6b7280;\">     💳 Powered by AI Finance    </div>  </div>",
+        "options": {
+          "appendAttribution": false,
+          "senderName": "={{ $('Gmail Trigger').item.json.From.split('<')[0].trim().split(' ')[0] }}"
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        768,
+        -224
+      ],
+      "id": "a8344b82-72b1-496c-a96c-63f186ee314a",
+      "name": "Finance",
+      "webhookId": "67b6ddc7-5f5c-4ad7-a91f-1d578f29c953",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "WDmCuVQV5dhBkMuP",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "pip1234679@gmail.com",
+        "subject": "=[{{$json.department}}] ({{$json.priority}}) {{$('Edit Fields').item.json.subject}}",
+        "message": "=<div style=\"max-width:640px; margin:40px auto; background:#ffffff; border-radius:14px; overflow:hidden; box-shadow:0 10px 30px rgba(0,0,0,0.08);\">    <div style=\"background:linear-gradient(135deg,#9a3412,#ea580c,#fb923c); padding:26px;\">     <h2 style=\"color:#ffffff; margin:0; font-size:22px;\">⚙️ New Operations Alert</h2>     <p style=\"color:#ffedd5; margin-top:6px; font-size:14px;\">       An operations, logistics, or internal process email has been classified by AI     </p>   </div>    <div style=\"padding:24px; color:#1e293b;\">      <p>Hello Operations Team,</p>     <p>A new operational request or workflow issue has been routed to your department:</p>      <div style=\"background:#fff7ed; padding:18px; border-radius:10px; margin:20px 0;\">        <p><strong>📦 Subject:</strong><br>{{ $('Edit Fields').item.json.subject }}</p>        <p><strong>👤 Requestor:</strong><br>{{ $('Edit Fields').item.json.sender.split('<')[0].trim() }}</p>        <p><strong>📧 Contact:</strong><br>{{ $('Edit Fields').item.json.sender.match(/<(.+?)>/)[1] }}</p>        <p><strong>🚨 Priority:</strong>         <span style=\"background:#fed7aa; color:#c2410c; padding:4px 10px; border-radius:6px;\">           {{$json.priority}}         </span>       </p>        <p><strong>📍 Confidence:</strong>         <span style=\"color:#ea580c; font-weight:bold;\">           {{$json.confidence}}%         </span>       </p>      </div>      <div style=\"margin:20px 0;\">       <p><strong>📨 Operations Message:</strong></p>       <div style=\"background:#fff7ed; border-left:4px solid #f97316; padding:14px; border-radius:6px;\">         {{ $('Edit Fields').item.json.body }}       </div>     </div>      <div style=\"margin:20px 0;\">       <p><strong>🤖 AI Operations Insight:</strong></p>       <div style=\"background:#ffedd5; border-left:4px solid #ea580c; padding:14px; border-radius:6px; color:#9a3412;\">         {{$json.reason}}       </div>     </div>      <div style=\"margin-top:30px; text-align:center;\">       <a href=\"#\" style=\"background:linear-gradient(135deg,#ea580c,#f97316); color:#ffffff; padding:12px 22px; border-radius:8px; text-decoration:none;\">         Manage Task       </a>     </div>    </div>    <div style=\"background:#fff7ed; padding:16px; text-align:center; font-size:12px; color:#6b7280;\">     ⚙️ Powered by AI Operations    </div>  </div>",
+        "options": {
+          "appendAttribution": false,
+          "senderName": "={{ $('Gmail Trigger').item.json.From.split('<')[0].trim().split(' ')[0] }}"
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        896,
+        -128
+      ],
+      "id": "b5e9ecf0-e89f-4b87-9d04-05800ff18487",
+      "name": "Operations",
+      "webhookId": "823586e7-6412-49bc-80ea-68179a3ce375",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "WDmCuVQV5dhBkMuP",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Gmail Trigger').item.json.From }}",
+        "subject": "=Re: {{ $('Gmail Trigger').item.json.Subject }}",
+        "message": "=Hi {{ $('Gmail Trigger').item.json.From.split('<')[0].trim().split(' ')[0] }},  Thank you for reaching out. We've received your email and it has been routed to our {{ $('Code in JavaScript').item.json.department }} team.  We'll get back to you as soon as possible.  Best regards, Your NexaFlow",
+        "options": {
+          "appendAttribution": false,
+          "senderName": "Nexaflow "
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        -144,
+        -320
+      ],
+      "id": "7bd57ab5-9fb6-4816-91a3-ef382c492998",
+      "name": "Auto_reply ",
+      "webhookId": "39d8d1fc-72e8-4d0d-9235-4ee42798a2a7",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "WDmCuVQV5dhBkMuP",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "path": "email-dashboard",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -880,
+        48
+      ],
+      "id": "e0874776-989d-42fc-a8b5-05ef21bdb685",
+      "name": "Webhook",
+      "webhookId": "351171cd-9946-4c24-8ead-bfec4c48559c"
+    },
+    {
+      "parameters": {
+        "content": "LIVE DASHBOARD WORKFLOW",
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1152,
+        48
+      ],
+      "typeVersion": 1,
+      "id": "2ab6f98a-cf23-4333-a48a-940d8799d7e5",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4",
+          "mode": "list",
+          "cachedResultName": "GPT-4"
+        },
+        "responses": {
+          "values": [
+            {
+              "content": "=Classify this email:\n\nSubject: {{$json.subject}}\nBody: {{$json.body}}\n\nReturn JSON like:\n{\n  \"department\": \"Sales\",\n  \"confidence\": 0.95,\n  \"priority\": \"High\",\n  \"reason\": \"Explain briefly\"\n}"
+            },
+            {
+              "role": "system",
+              "content": "You are an email classification AI.\n\nYou must ALWAYS return a valid JSON object only.\n\nClassify emails into:\n- Sales\n- Customer Service\n- HR\n- Finance\n- Operations\n- Other\n\nAlso include:\n- confidence (0 to 1)\n- priority (Low, Medium, High)\n- reason"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.1,
+      "position": [
+        -832,
+        -320
+      ],
+      "id": "261f677e-e7d3-413f-8bbf-f02adb7b54dc",
+      "name": "Ai Classify+ Confidence",
+      "credentials": {
+        "openAiApi": {
+          "id": "8ylP0OQkF5ZJ6hTs",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "appAcTl7VoXLeZvS1",
+          "mode": "list",
+          "cachedResultName": "AI Email Classifier",
+          "cachedResultUrl": "https://airtable.com/appAcTl7VoXLeZvS1"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblyI4VJKXuybHXpK",
+          "mode": "list",
+          "cachedResultName": "Email Logs",
+          "cachedResultUrl": "https://airtable.com/appAcTl7VoXLeZvS1/tblyI4VJKXuybHXpK"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Name": "={{ $('Edit Fields').item.json.sender.split('<')[0].trim() }}",
+            "Email": "={{ $('Edit Fields').item.json.sender.match(/<(.+?)>/)[1] }}",
+            "Subject": "={{ $('Edit Fields').item.json.subject }}",
+            "Body": "={{ $('Edit Fields').item.json.body }}",
+            "Department": "={{ $json.department }}",
+            "Priority": "={{ $json.priority }}",
+            "Confidence": "={{ $json.confidence }}",
+            "Reason": "={{ $json.reason }}",
+            "Date": "={{ $now }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Subject",
+              "displayName": "Subject",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Body",
+              "displayName": "Body",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Department",
+              "displayName": "Department",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Priority",
+              "displayName": "Priority",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Confidence",
+              "displayName": "Confidence",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Reason",
+              "displayName": "Reason",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        -336,
+        -320
+      ],
+      "id": "5d267311-576f-47c2-bf80-8969128c9e69",
+      "name": "email log",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "7xu7c9uV9nMeOjG0",
+          "name": "Airtable Personal Access Token account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('email log').item.json.fields.Department }}",
+                    "rightValue": "Sales",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "208b599f-6d1b-4122-b7fc-038ea8f78baa"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "d26e1603-3b62-4878-8ad3-c7f1c4ad7a57",
+                    "leftValue": "={{ $('email log').item.json.fields.Department }}",
+                    "rightValue": "Customer Service",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "c0f65c80-86ee-467a-91de-02221af8f5f5",
+                    "leftValue": "={{ $('email log').item.json.fields.Department }}",
+                    "rightValue": "HR",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "663ec77e-e21f-4c42-ae42-f9a49522dfab",
+                    "leftValue": "={{ $('email log').item.json.fields.Department }}",
+                    "rightValue": "Finance",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "250454b3-8f00-4864-b78b-5bd6a04c1cf1",
+                    "leftValue": "={{ $('Code in JavaScript').item.json.department }}",
+                    "rightValue": "Operations",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        64,
+        -384
+      ],
+      "id": "3e8401f2-598e-4dcc-96b7-fc562650d8dc",
+      "name": "Route Dep"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4",
+          "mode": "list",
+          "cachedResultName": "GPT-4"
+        },
+        "responses": {
+          "values": [
+            {
+              "role": "system",
+              "content": "=Analyse the sentiment of this email and respond with ONLY a JSON object, no extra text:\n{\"sentiment\": \"Angry\", \"reason\": \"customer is frustrated\"}\n\nSentiment must be exactly one of: Angry, Neutral, Happy\n\nEmail:\n{{ $('Gmail Trigger').item.json.snippet }}"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.1,
+      "position": [
+        368,
+        -432
+      ],
+      "id": "f050aab5-10f5-45af-8640-7d4400380620",
+      "name": "Message a model",
+      "credentials": {
+        "openAiApi": {
+          "id": "8ylP0OQkF5ZJ6hTs",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const aiOutput = $input.first().json.output;\nconst aiText = aiOutput?.[0]?.content?.[0]?.text || '';\n\nlet sentiment = 'Neutral';\nlet reason = '';\n\ntry {\n  const clean = aiText.replace(/```json|```/g, '').trim();\n  const parsed = JSON.parse(clean);\n  sentiment = parsed.sentiment || 'Neutral';\n  reason = parsed.reason || '';\n} catch(e) {\n  sentiment = 'Neutral';\n  reason = 'Could not parse AI response';\n}\n\nreturn [{ json: { sentiment, reason } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        720,
+        -496
+      ],
+      "id": "59dfeaac-cd6b-4aa3-b572-5e166cf6f6a0",
+      "name": "Code in JavaScript2"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "1c4f02da-7d3c-40ba-b4a2-64d3cac68d99",
+              "leftValue": "={{ $json.sentiment }}\n",
+              "rightValue": "Angry",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        880,
+        -496
+      ],
+      "id": "1bcfb568-c67e-4482-9b2c-9679307ff3b3",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appAcTl7VoXLeZvS1",
+          "mode": "list",
+          "cachedResultName": "AI Email Classifier",
+          "cachedResultUrl": "https://airtable.com/appAcTl7VoXLeZvS1"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblyI4VJKXuybHXpK",
+          "mode": "list",
+          "cachedResultName": "Email Logs",
+          "cachedResultUrl": "https://airtable.com/appAcTl7VoXLeZvS1/tblyI4VJKXuybHXpK"
+        },
+        "options": {},
+        "sort": {
+          "property": [
+            {
+              "field": "Date",
+              "direction": "desc"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        -688,
+        48
+      ],
+      "id": "d0665f7d-cf09-427e-a711-0c8d84128e51",
+      "name": "fetch all records",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "7xu7c9uV9nMeOjG0",
+          "name": "Airtable Personal Access Token account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const records = $input.all().map(i => i.json.fields || i.json);\nconst total = records.length;\nconst high = records.filter(r => r.Priority === 'High').length;\nconst avgConf = total > 0 ? Math.round(records.reduce((s,r) => s+(r.Confidence||0),0)/total*100) : 0;\nconst lowConf = records.filter(r => r.Confidence < 0.70).length;\nconst depts = ['Sales','Customer Services','HR','Finance','Operations','Others'];\nconst counts = depts.map(d => records.filter(r=>r.Department===d).length);\nconst rows = records.slice(0,20).map(r=>`\n  <tr>\n    <td>${r.Name||''}</td>\n    <td>${(r.Subject||'').substring(0,50)}</td>\n    <td>${r.Department||''}</td>\n    <td style=\"color:${r.Priority==='High'?'#E24B4A':'#444'}\">${r.Priority||''}</td>\n    <td>${Math.round((r.Confidence||0)*100)}%</td>\n  </tr>`).join('');\n\nconst html = `<!DOCTYPE html><html><head><title>Routeiq Dashboard</title>\n<script src=\"https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js\"><\\/script>\n<style>\n*{box-sizing:border-box;margin:0;padding:0}\nbody{font-family:sans-serif;background:#f5f5f5;padding:24px;color:#222}\nh1{font-size:20px;font-weight:500;margin-bottom:20px}\n.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}\n.metric{background:#fff;border-radius:10px;padding:16px;border:1px solid #eee}\n.mlabel{font-size:11px;color:#999;text-transform:uppercase;margin-bottom:6px}\n.mval{font-size:26px;font-weight:500}\n.charts{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px}\n.cbox{background:#fff;border-radius:10px;padding:16px;border:1px solid #eee}\n.cbox h3{font-size:12px;color:#888;text-transform:uppercase;margin-bottom:12px}\ntable{width:100%;border-collapse:collapse;background:#fff;border-radius:10px;overflow:hidden;border:1px solid #eee}\nth{background:#f9f9f9;padding:10px 14px;text-align:left;font-size:12px;color:#666;border-bottom:1px solid #eee}\ntd{padding:10px 14px;font-size:13px;border-bottom:1px solid #f9f9f9}\n<\\/style><\\/head><body>\n<h1>Routeiq — Email Dashboard<\\/h1>\n<div class=\"metrics\">\n<div class=\"metric\"><div class=\"mlabel\">Total emails<\\/div><div class=\"mval\">${total}<\\/div><\\/div>\n<div class=\"metric\"><div class=\"mlabel\">High priority<\\/div><div class=\"mval\" style=\"color:#E24B4A\">${high}<\\/div><\\/div>\n<div class=\"metric\"><div class=\"mlabel\">Avg confidence<\\/div><div class=\"mval\" style=\"color:#1D9E75\">${avgConf}%<\\/div><\\/div>\n<div class=\"metric\"><div class=\"mlabel\">Low confidence<\\/div><div class=\"mval\" style=\"color:#BA7517\">${lowConf}<\\/div><\\/div>\n<\\/div>\n<div class=\"charts\">\n<div class=\"cbox\"><h3>Emails by department<\\/h3><canvas id=\"d1\"><\\/canvas><\\/div>\n<div class=\"cbox\"><h3>Confidence split<\\/h3><canvas id=\"d2\"><\\/canvas><\\/div>\n<\\/div>\n<table><thead><tr><th>Name<\\/th><th>Subject<\\/th><th>Department<\\/th><th>Priority<\\/th><th>Confidence<\\/th><\\/tr><\\/thead>\n<tbody>${rows}<\\/tbody><\\/table>\n<script>\nnew Chart(document.getElementById('d1'),{type:'bar',data:{labels:${JSON.stringify(depts.map(d=>d==='Customer Services'?'CS':d))},datasets:[{data:${JSON.stringify(counts)},backgroundColor:['#378ADD','#1D9E75','#7F77DD','#BA7517','#639922','#888780'],borderRadius:4}]},options:{plugins:{legend:{display:false}},scales:{x:{grid:{display:false}},y:{beginAtZero:true,ticks:{stepSize:1}}}}});\nnew Chart(document.getElementById('d2'),{type:'doughnut',data:{labels:['High conf','Low conf'],datasets:[{data:[${total-lowConf},${lowConf}],backgroundColor:['#1D9E75','#E24B4A']}]},options:{plugins:{legend:{position:'bottom'}}}});\n<\\/script><\\/body><\\/html>`;\n\nreturn [{ json: { html } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -464,
+        48
+      ],
+      "id": "77419f35-c62d-4e91-b69b-e9e56493b3bb",
+      "name": "build html page"
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "={{ $json.html }}\n",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "text/html"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        -240,
+        48
+      ],
+      "id": "254e3e80-4d8f-40dc-a885-899151ee5138",
+      "name": "Respond to Webhook browser"
+    },
+    {
+      "parameters": {
+        "content": "EMAIL CLASSIFICATION",
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1584,
+        -336
+      ],
+      "typeVersion": 1,
+      "id": "09671ee3-2458-4f07-b7d8-f01830629e01",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "sendTo": "pip1234679@gmail.com",
+        "subject": "=⚠️ Manual Review Needed: {{ $('Edit Fields').item.json.subject }}",
+        "message": "=<div style=\"max-width:640px; margin:40px auto; background:#ffffff; border-radius:14px; overflow:hidden; box-shadow:0 10px 30px rgba(0,0,0,0.08);\">\n\n  <div style=\"background:linear-gradient(135deg,#374151,#6b7280,#9ca3af); padding:26px;\">\n    <h2 style=\"color:#ffffff; margin:0; font-size:22px;\">⚠️ Manual Review Required</h2>\n    <p style=\"color:#f3f4f6; margin-top:6px; font-size:14px;\">\n      AI could not confidently classify this email\n    </p>\n  </div>\n\n  <div style=\"padding:24px; color:#1f2937;\">\n\n    <p>Hello Admin Team,</p>\n    <p>This email requires human review before routing:</p>\n\n    <div style=\"background:#f9fafb; padding:18px; border-radius:10px; margin:20px 0;\">\n\n      <p><strong>📌 Subject:</strong><br>{{ $('Edit Fields').item.json.subject }}</p>\n\n      <p><strong>👤 Sender:</strong><br>{{ $('Edit Fields').item.json.sender.split('<')[0].trim() }}</p>\n\n      <p><strong>📧 Email:</strong><br>{{ $('Edit Fields').item.json.sender.match(/<(.+?)>/)[1] }}</p>\n\n      <p><strong>📊 Confidence:</strong>\n        <span style=\"color:#dc2626; font-weight:bold;\">\n          {{$json.confidence}}%\n        </span>\n      </p>\n\n    </div>\n\n    <div style=\"background:#f3f4f6; border-left:4px solid #6b7280; padding:14px; border-radius:6px;\">\n      {{ $('Edit Fields').item.json.body }}\n    </div>\n\n    <div style=\"margin-top:20px; background:#fef2f2; border-left:4px solid #dc2626; padding:14px; border-radius:6px; color:#991b1b;\">\n      {{$json.reason}}\n    </div>\n\n    <div style=\"margin-top:30px; text-align:center;\">\n      <a href=\"#\" style=\"background:#374151; color:#ffffff; padding:12px 22px; border-radius:8px; text-decoration:none;\">\n        Review Manually\n      </a>\n    </div>\n\n  </div>\n\n  <div style=\"background:#f3f4f6; padding:16px; text-align:center; font-size:12px; color:#6b7280;\">\n    🛡️ AI Confidence Protection System\n  </div>\n\n</div>",
+        "options": {
+          "senderName": "={{ $('Gmail Trigger').item.json.From.split('<')[0].trim().split(' ')[0] }}"
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        720,
+        0
+      ],
+      "id": "aa30c62f-c3f3-4b01-9f5d-5247410f8e58",
+      "name": "Other",
+      "webhookId": "953b7bea-ef66-4fb6-a4f8-863427dfda51",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "WDmCuVQV5dhBkMuP",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "zallerzac01@gmail.com",
+        "subject": "=Angry customer alert — {{ $('Gmail Trigger').item.json.Subject }}",
+        "message": "=An angry customer email has been received and needs urgent attention.  From: {{ $('Gmail Trigger').item.json.From }} Subject: {{ $('Gmail Trigger').item.json.Subject }} Sentiment reason: {{ $('Code in JavaScript2').item.json.reason }}\nOriginal message: {{ $('Gmail Trigger').item.json.snippet }}",
+        "options": {
+          "appendAttribution": false,
+          "senderName": "={{ $('Gmail Trigger').item.json.From.split('<')[0].trim().split(' ')[0] }}"
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1088,
+        -592
+      ],
+      "id": "e82abd53-c5fc-46c4-9b1a-c85a7e05f055",
+      "name": "Angry Costumer",
+      "webhookId": "7ff58203-bc47-40cf-806b-45f0cb41dffc",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "WDmCuVQV5dhBkMuP",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Ai Classify+ Confidence",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "email log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Auto_reply ": {
+      "main": [
+        [
+          {
+            "node": "Route Dep",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "fetch all records",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ai Classify+ Confidence": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "email log": {
+      "main": [
+        [
+          {
+            "node": "Auto_reply ",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route Dep": {
+      "main": [
+        [
+          {
+            "node": "Sales",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Hr",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Finance",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Operations",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Other",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript2": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Angry Costumer",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Costumer Services",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "fetch all records": {
+      "main": [
+        [
+          {
+            "node": "build html page",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "build html page": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook browser",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "6d0b97c9-dc07-4df2-8e94-c4683832f4d0",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "4f72a3c4b8d86198e4f6be2c7192ce345b6139f1cca52abee94ee423335235bd"
+  },
+  "id": "QidTAmcwmV8uRfa5",
+  "tags": []
+}
